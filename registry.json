@@ -7,7 +7,7 @@
       "version": "1.1.0",
       "official": false,
       "author": "stuffandnothing",
-      "description": "Control OpenRGB profiles from the bar. Supports profile switching, brightness control, and custom off color. Requires OpenRGB running with SDK server enabled.",
+      "description": "Control OpenRGB profiles Requires OpenRGB running with SDK server enabled.",
       "repository": "https://github.com/stuffandnothing/openrgb-control-qml-shell",
       "minNoctaliaVersion": "3.6.0",
       "license": "MIT",
