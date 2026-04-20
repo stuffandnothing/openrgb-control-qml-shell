@@ -117,55 +117,48 @@ Rectangle {
     }
 
     // --- Process to run openrgb CLI ---
-    Process {
-        id: openrgbProc
-        property string pendingProfile: ""
+Process {
+    id: openrgbProc
+    property string pendingProfile: ""
 
-        onExited: (exitCode) => {
-            root.busy = false
-            if (exitCode === 0) {
-                root.activeProfile = openrgbProc.pendingProfile
-                if (pluginApi) {
-                    pluginApi.pluginSettings.activeProfile = root.activeProfile
-                    pluginApi.saveSettings()
-                }
-                root.expanded = false
-                ToastService.showNotice("RGB → " + root.activeProfile)
-                Logger.i("OpenRGB", "Profile applied:", root.activeProfile)
-            } else {
-                ToastService.showError("OpenRGB failed (exit " + exitCode + ")")
-                Logger.e("OpenRGB", "Failed to apply profile:", root.activeProfile, "exit:", exitCode)
+    stderr: StdioCollector {}
+    stdout: StdioCollector {
+        onStreamFinished: {
+            Logger.i("OpenRGB", "stdout:", this.text)
+        }
+    }
+
+    onExited: (exitCode, exitStatus) => {
+        Logger.i("OpenRGB", "Exited with code:", exitCode, "status:", exitStatus)
+        Logger.i("OpenRGB", "stderr:", openrgbProc.stderrCollector)
+        root.busy = false
+        if (exitCode === 0) {
+            root.activeProfile = openrgbProc.pendingProfile
+            if (pluginApi) {
+                pluginApi.pluginSettings.activeProfile = root.activeProfile
+                pluginApi.saveSettings()
             }
-        }
-    }
-
-    // --- Functions ---
-    function applyProfile(profileName) {
-        if (busy) return
-        busy = true
-        openrgbProc.pendingProfile = profileName
-
-        if (profileName === "Off") {
-            // Turn all devices off by setting brightness to 0 via color black
-            openrgbProc.command = [
-                "openrgb",
-                "--server-host", root.host,
-                "--server-port", root.port.toString(),
-                "--alldevices",
-                "--color", "000000"
-            ]
+            root.expanded = false
+            ToastService.showNotice("RGB → " + root.activeProfile)
         } else {
-            openrgbProc.command = [
-                "openrgb",
-                "--server-host", root.host,
-                "--server-port", root.port.toString(),
-                "--profile", profileName
-            ]
+            ToastService.showError("OpenRGB failed (exit " + exitCode + ")")
+            Logger.e("OpenRGB", "Failed, command was:", openrgbProc.command)
         }
-        openrgbProc.running = true
+    }
+}
+function applyProfile(profileName) {
+    if (busy) return
+    busy = true
+    openrgbProc.pendingProfile = profileName
+
+    if (profileName === "Off") {
+        openrgbProc.command = ["/usr/bin/openrgb", "--client", root.host + ":" + root.port, "--color", "000000"]
+    } else {
+        openrgbProc.command = ["/usr/bin/openrgb", "--client", root.host + ":" + root.port, "-p", profileName]
     }
 
-    Component.onCompleted: {
-        Logger.i("OpenRGB", "Widget loaded, active profile:", root.activeProfile)
-    }
+    Logger.i("OpenRGB", "Running command:", openrgbProc.command)
+    openrgbProc.running = false
+    openrgbProc.running = true
+}
 }
