@@ -1,32 +1,40 @@
 import QtQuick
-import Quickshell
+import Quickshell.Io
 import qs.Commons
+import qs.Services.UI
 
-QtObject {
-    id: root
-
+Item {
     property var pluginApi: null
 
     IpcHandler {
-        target: "alt-tab"
+        target: "plugin:alt-tab"
 
         function toggle() {
-            if (root.pluginApi)
-                root.pluginApi.togglePanel(Quickshell.screens[0])
+            if (!pluginApi)
+                return
+            pluginApi.withCurrentScreen(screen => {
+                pluginApi.togglePanel(screen)
+            })
         }
 
         function open() {
-            if (root.pluginApi)
-                root.pluginApi.openPanel(Quickshell.screens[0])
+            if (!pluginApi)
+                return
+            pluginApi.withCurrentScreen(screen => {
+                pluginApi.openPanel(screen)
+            })
         }
 
         function close() {
-            if (root.pluginApi)
-                root.pluginApi.closePanel(Quickshell.screens[0])
+            if (!pluginApi)
+                return
+            pluginApi.withCurrentScreen(screen => {
+                pluginApi.closePanel(screen)
+            })
         }
     }
 
     Component.onCompleted: {
-        Logger.i("AltTab", "IPC handler registered — target: alt-tab")
+        Logger.i("AltTab", "IPC handler registered — target: plugin:alt-tab")
     }
 }
