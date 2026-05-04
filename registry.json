@@ -19,5 +19,24 @@
       ],
       "lastUpdated": "2026-04-20T00:00:00-00:00"
     }
+  ,
+    {
+      "id": "alt-tab",
+      "name": "Alt Tab",
+      "version": "1.0.0",
+      "official": false,
+      "author": "ridge",
+      "description": "Workspace window switcher for Hyprland. Lists all windows on the current workspace and lets you focus them via a panel overlay.",
+      "repository": "",
+      "minNoctaliaVersion": "3.6.0",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel",
+        "Hyprland",
+        "Utility"
+      ],
+      "lastUpdated": "2026-05-03T00:00:00-00:00"
+    }
   ]
 }
