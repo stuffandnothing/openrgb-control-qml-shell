@@ -1,0 +1,41 @@
+#!/bin/bash
+
+ws=$(hyprctl activeworkspace -j | jq -r '.id')
+
+get_windows() {
+hyprctl clients -j | jq -r --argjson ws "$ws" '
+[
+ .[] | select(.workspace.id == $ws)
+] | to_entries[] |
+"\(.key + 1)|\(.value.address)|\(.value.class)|\(.value.title)"
+'
+}
+
+case "$1" in
+  --list)
+    get_windows | awk -F'|' '{print $1") " $3 " - " $4}'
+    ;;
+
+  --focus)
+    [ -z "$2" ] && {
+      echo "usage: $0 --focus <number>"
+      exit 1
+    }
+
+    addr=$(get_windows | awk -F'|' -v n="$2" '$1 == n {print $2}')
+
+    [ -z "$addr" ] && {
+      echo "invalid selection"
+      exit 1
+    }
+
+    hyprctl dispatch focuswindow "address:$addr"
+    ;;
+
+  *)
+    echo "usage:"
+    echo "  $0 --list"
+    echo "  $0 --focus <number>"
+    exit 1
+    ;;
+esac
